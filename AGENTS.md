@@ -9,6 +9,7 @@ Playwright end-to-end test project written in TypeScript. Goal: reliable, readab
 - `tests/seed.spec.ts` — environment bootstrap used by the planner agent; keep it minimal (navigation/login only).
 - `specs/` — Markdown test plans, one file per feature area (e.g. `specs/guest-checkout.md`).
 - `.opencode/prompts/` — prompts for the three Playwright subagents.
+- `.opencode/commands/` — project OpenCode commands (`/ci`, `/pr`, `/test-plan`, `/generate-tests`, `/github-status`).
 - `.opencode/skills/github/` — skill for GitHub MCP workflows (issues, PRs, reviews, releases).
 - `.github/` — CI workflow, PR/issue templates, and CODEOWNERS.
 - `opencode.json` — project MCP servers and agent definitions.
