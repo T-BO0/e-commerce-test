@@ -9,6 +9,8 @@ Playwright end-to-end test project written in TypeScript. Goal: reliable, readab
 - `tests/seed.spec.ts` — environment bootstrap used by the planner agent; keep it minimal (navigation/login only).
 - `specs/` — Markdown test plans, one file per feature area (e.g. `specs/guest-checkout.md`).
 - `.opencode/prompts/` — prompts for the three Playwright subagents.
+- `.opencode/skills/github/` — skill for GitHub MCP workflows (issues, PRs, reviews, releases).
+- `.github/` — CI workflow, PR/issue templates, and CODEOWNERS.
 - `opencode.json` — project MCP servers and agent definitions.
 - `playwright-report/`, `test-results/`, `blob-report/`, `playwright/.cache/`, `playwright/.auth/` — generated; never edit or commit.
 
@@ -54,6 +56,15 @@ Before reporting work as done:
 
 ## MCP / tools
 
-Available MCP servers: `github` (global, PAT-backed), `playwright` (standalone browser tools), `playwright-test` (agents' browser + plan tools). Access their tools through `tools.github.*` / `tools.playwright.*` in Code Mode.
+Available MCP servers: `github` (global, PAT-backed), `playwright` (standalone browser tools), `playwright-test` (agents' browser + plan tools). Access their tools through `tools.github.*` / `tools.playwright.*` in Code Mode. Call `tools.github.get_me()` first when identity or permissions matter.
 
-GitHub actions are remote and may be destructive: confirm with the user before `merge_pull_request`, `push_files`, `create_pull_request`, or any write to an org repository. Never read or print `~/.config/opencode/.secrets/github-pat`.
+### GitHub
+
+- Remote: `git@github.com:T-BO0/e-commerce-test.git` (owner `T-BO0`, repo `e-commerce-test`, default branch `main`). For any GitHub task — issues, PRs, reviews, releases, CI checks, remote file edits — follow `.opencode/skills/github/SKILL.md`.
+- Confirm with the user before **any** remote write: `create_repository`, `fork_repository`, `push_files`, `create_pull_request`, `merge_pull_request`, issue/PR state changes, branch-protection/settings changes, and any write to an org repository.
+- Never read or print `~/.config/opencode/.secrets/github-pat` or any token. If auth fails, report it; do not paste credentials.
+- Never invent labels, assignees, reviewers, or issue numbers — verify them with `get_label` / `ui_get` / `search_issues` first.
+- Do not commit directly to `main`: work on a `feature/<slug>`, `fix/<slug>`, or `test/<slug>` branch and open a PR. `main` is protected by a ruleset requiring the `test` check from the Playwright Tests workflow. Never force-push or rewrite `main`.
+- Before opening a PR, run `npm test -- --project=chromium` and use `.github/PULL_REQUEST_TEMPLATE.md` as the body. Check `pull_request_read({ method: "get_check_runs" })` and report failures instead of merging past them.
+- For line/file review comments use the three-step flow: `pull_request_review_write({ method: "create" })` → `add_comment_to_pending_review` → `pull_request_review_write({ method: "submit_pending" })`. Use `add_issue_comment` for general PR conversation.
+- No secrets, tokens, or credentials in issues, PRs, comments, or commits.
